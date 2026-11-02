@@ -1,6 +1,6 @@
 # Semi-Streaming Shortest Paths in $n^{1/3+o(1)}$ Passes
 
-Single-source reachability asks which vertices of a directed graph $G=(V,E)$ are reachable from a given source $s$. In the graph streaming model, edges arrive one at a time in an arbitrary order, and the algorithm may make multiple passes over the stream. The semi-streaming model permits $\widetilde O(n)=O(n\operatorname{polylog}n)$ space, where $n=|V|$.
+Single-source reachability asks which vertices of a directed graph $G=(V,E)$ are reachable from a given source $s$. In the graph streaming model, edges arrive one at a time in an arbitrary order, and the algorithm may make multiple passes over the stream. The semi-streaming model permits $\widetilde O(n)=O(n\mathrm{polylog}\,n)$ space, where $n=|V|$.
 
 **Theorem (Streaming shortest paths).** There is a randomized streaming algorithm that, with high probability, computes exact single-source shortest paths in $n$-vertex directed graphs with nonnegative, polynomially bounded integer edge weights, using
 
