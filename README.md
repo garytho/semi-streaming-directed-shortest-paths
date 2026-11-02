@@ -46,7 +46,6 @@ The statement uses these definitions:
 - **Probability:** [`Law` and `Law.prob`](StreamingSSSP/Probability.lean#L67), with [`Holds`](StreamingSSSP/Early/Sampling.lean#L18) expressing a property of every sampled outcome.
 - **Resource measures:** the [`passes` field](StreamingSSSP/Exact/MeasuredProgram.lean#L19), [`workingCells`](StreamingSSSP/Exact/SpaceComplexity.lean#L38), and [`wordBits`](StreamingSSSP/Exact/WordComplexity.lean#L20).
 
-Here `exponent` bounds edge weights by $n^{\mathtt{exponent}}$, `confidence` gives success probability at least $1-n^{-\mathtt{confidence}}$, and every $\epsilon>0$ yields an eventual $O(n^{1/3+\epsilon})$ pass bound.
 
 The proof uses only Lean's standard foundational axioms:
 
