@@ -2,7 +2,7 @@
 
 [![Lean build](https://github.com/garytho/semi-streaming-directed-shortest-paths/actions/workflows/lean.yml/badge.svg?branch=main)](https://github.com/garytho/semi-streaming-directed-shortest-paths/actions/workflows/lean.yml)
 
-Single-source reachability asks which vertices of a directed graph $G=(V,E)$ are reachable from a given source $s$. In the graph streaming model, edges arrive one at a time in an arbitrary order, and the algorithm may make multiple passes over the stream. The semi-streaming model permits $\widetilde O(n)=O(n\log^{O(1)} n)$ space, where $n=|V|$.
+Single-source reachability asks which vertices of a directed graph $G=(V,E)$ are reachable from a given source $s$. Likewise, single-source shortest paths asks for a shortest path tree in $G$ rooted at a given source $s$. In the graph streaming model, edges arrive one at a time in an arbitrary order, and the algorithm may make multiple passes over the stream. The semi-streaming model permits $\widetilde O(n)=O(n\log^{O(1)} n)$ space, where $n=|V|$. We obtain improved streaming algorithms for single-source reachability and shortest paths in directed graphs.
 
 **Theorem (Streaming shortest paths).** There is a randomized streaming algorithm that, with high probability, computes exact single-source shortest paths in $n$-vertex directed graphs with nonnegative, polynomially bounded integer edge weights, using
 
