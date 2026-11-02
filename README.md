@@ -1,4 +1,4 @@
-# Semi-Streaming Shortest Paths in $n^{1/3+o(1)}$ Passes
+# Semi-Streaming Reachability and Shortest Paths in $n^{1/3+o(1)}$ Passes
 
 [![Lean build](https://github.com/garytho/semi-streaming-directed-shortest-paths/actions/workflows/lean.yml/badge.svg?branch=main)](https://github.com/garytho/semi-streaming-directed-shortest-paths/actions/workflows/lean.yml)
 
