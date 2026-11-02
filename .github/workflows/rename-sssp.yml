@@ -1,0 +1,64 @@
+name: Rename shortest-path formalization
+on:
+  push:
+    paths:
+      - '.github/workflows/rename-sssp.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Rename Lean modules and document theorem definitions
+        shell: python
+        run: |
+          from pathlib import Path
+          import hashlib, re, zipfile
+          repo = Path.cwd()
+          old, new = 'StreamingReachability', 'StreamingSSSP'
+          (repo / old).rename(repo / new)
+          (repo / f'{old}.lean').rename(repo / f'{new}.lean')
+          for path in [*repo.rglob('*.lean'), repo/'lakefile.toml', repo/'lake-manifest.json', repo/'README.md']:
+              text = path.read_text(encoding='utf-8')
+              text = text.replace(old, new).replace('streaming_reachability', 'streaming_sssp')
+              path.write_text(text, encoding='utf-8', newline='\n')
+          readme_path = repo / 'README.md'
+          readme = readme_path.read_text(encoding='utf-8')
+          readme = readme.replace(r'\widetilde O(n)=O(n\mathrm{polylog}\,n)', r'\widetilde O(n)=O(n\log^{O(1)} n)')
+          definitions = '''The statement uses these definitions:
+
+          - **Input graph and distances:** [`StoredEdges.Edge` and `graphOfEdges`](StreamingSSSP/Graph/StoredEdges.lean#L9), and [`Graph.dist`](StreamingSSSP/Graph.lean#L122).
+          - **Streaming model:** [`Metered` and `readPass`](StreamingSSSP/StreamingModel.lean#L9) define edge-by-edge scans and peak storage; [`fusedPass`](StreamingSSSP/Streaming/FusedPass.lean#L28) scans the original stream through an edge view.
+          - **Randomized algorithm:** [`Measured.evaluate`](StreamingSSSP/Exact/MeasuredProgram.lean#L143) defines the algorithm whose execution is measured.
+          - **Correct output:** [`CorrectResult`](StreamingSSSP/Exact/StreamingCorrectness.lean#L14) specifies exact distances and a shortest-path tree using original edges.
+          - **Probability:** [`Law` and `Law.prob`](StreamingSSSP/Probability.lean#L67), with [`Holds`](StreamingSSSP/Early/Sampling.lean#L18) expressing a property of every sampled outcome.
+          - **Resource measures:** the [`passes` field](StreamingSSSP/Exact/MeasuredProgram.lean#L19), [`workingCells`](StreamingSSSP/Exact/SpaceComplexity.lean#L38), and [`wordBits`](StreamingSSSP/Exact/WordComplexity.lean#L20).
+
+          '''
+          assert readme.count('Here `exponent`') == 1
+          readme = readme.replace('Here `exponent`', definitions + 'Here `exponent`')
+          readme_path.write_text(readme, encoding='utf-8', newline='\n')
+          files = sorted(repo.rglob('*.lean'))
+          assert len(files) == 477
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              assert old not in text
+              for module in re.findall(r'^\s*(?:public\s+)?import\s+(StreamingSSSP[\w.]*)', text, re.M):
+                  assert (repo / (module.replace('.', '/') + '.lean')).is_file(), (path, module)
+          for target in re.findall(r'\]\((StreamingSSSP/[^)#]+)(?:#[^)]+)?\)', readme):
+              assert (repo/target).is_file(), target
+          statement = 'theorem streaming_sssp' + (repo/new/'Main.lean').read_text(encoding='utf-8').split('theorem streaming_sssp',1)[1].split(' := by',1)[0]
+          assert statement in readme
+          names = [p.relative_to(repo).as_posix() for p in files] + ['README.md', '.gitignore', 'lakefile.toml', 'lake-manifest.json', 'lean-toolchain']
+          with zipfile.ZipFile(repo/'formalization.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
+              for name in sorted(names):
+                  archive.write(repo/name, name)
+      - name: Publish the renamed project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Rename project to StreamingSSSP and document theorem definitions"
+          git push
