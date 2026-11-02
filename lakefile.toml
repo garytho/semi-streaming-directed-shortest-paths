@@ -1,12 +1,12 @@
-name = "streaming_reachability"
+name = "streaming_sssp"
 version = "0.1.0"
-defaultTargets = ["StreamingReachability"]
+defaultTargets = ["StreamingSSSP"]
 
 [leanOptions]
 autoImplicit = false
 
 [[lean_lib]]
-name = "StreamingReachability"
+name = "StreamingSSSP"
 
 [[require]]
 name = "mathlib"

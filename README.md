@@ -1,6 +1,6 @@
 # Semi-Streaming Shortest Paths in $n^{1/3+o(1)}$ Passes
 
-Single-source reachability asks which vertices of a directed graph $G=(V,E)$ are reachable from a given source $s$. In the graph streaming model, edges arrive one at a time in an arbitrary order, and the algorithm may make multiple passes over the stream. The semi-streaming model permits $\widetilde O(n)=O(n\mathrm{polylog}\,n)$ space, where $n=|V|$.
+Single-source reachability asks which vertices of a directed graph $G=(V,E)$ are reachable from a given source $s$. In the graph streaming model, edges arrive one at a time in an arbitrary order, and the algorithm may make multiple passes over the stream. The semi-streaming model permits $\widetilde O(n)=O(n\log^{O(1)} n)$ space, where $n=|V|$.
 
 **Theorem (Streaming shortest paths).** There is a randomized streaming algorithm that, with high probability, computes exact single-source shortest paths in $n$-vertex directed graphs with nonnegative, polynomially bounded integer edge weights, using
 
@@ -10,10 +10,10 @@ $$
 n^{1/3+o(1)}\text{ passes}.
 $$
 
-We give a Lean verification of this theorem. The main statement is [`StreamingReachability.streaming_sssp`](StreamingReachability/Main.lean):
+We give a Lean verification of this theorem. The main statement is [`StreamingSSSP.streaming_sssp`](StreamingSSSP/Main.lean):
 
 ```lean
-namespace StreamingReachability
+namespace StreamingSSSP
 
 theorem streaming_sssp (exponent confidence : ℕ) {epsilon : ℝ} (he : 0 < epsilon) :
     ∃ passConstant : ℝ, 0 < passConstant ∧ ∃ spaceConstant spaceDegree bitConstant threshold : ℕ,
@@ -32,8 +32,17 @@ theorem streaming_sssp (exponent confidence : ℕ) {epsilon : ℝ} (he : 0 < eps
                 encoded.length = (Exact.Implementation.Measured.traceWords out.result.trace).length) ∧
         Exact.Implementation.Measured.wordBits n exponent confidence ≤ bitConstant * Parameters.ell n
 
-end StreamingReachability
+end StreamingSSSP
 ```
+
+The statement uses these definitions:
+
+- **Input graph and distances:** [`StoredEdges.Edge` and `graphOfEdges`](StreamingSSSP/Graph/StoredEdges.lean#L9), and [`Graph.dist`](StreamingSSSP/Graph.lean#L122).
+- **Streaming model:** [`Metered` and `readPass`](StreamingSSSP/StreamingModel.lean#L9) define edge-by-edge scans and peak storage; [`fusedPass`](StreamingSSSP/Streaming/FusedPass.lean#L28) scans the original stream through an edge view.
+- **Randomized algorithm:** [`Measured.evaluate`](StreamingSSSP/Exact/MeasuredProgram.lean#L143) defines the algorithm whose execution is measured.
+- **Correct output:** [`CorrectResult`](StreamingSSSP/Exact/StreamingCorrectness.lean#L14) specifies exact distances and a shortest-path tree using original edges.
+- **Probability:** [`Law` and `Law.prob`](StreamingSSSP/Probability.lean#L67), with [`Holds`](StreamingSSSP/Early/Sampling.lean#L18) expressing a property of every sampled outcome.
+- **Resource measures:** the [`passes` field](StreamingSSSP/Exact/MeasuredProgram.lean#L19), [`workingCells`](StreamingSSSP/Exact/SpaceComplexity.lean#L38), and [`wordBits`](StreamingSSSP/Exact/WordComplexity.lean#L20).
 
 Here `exponent` bounds edge weights by $n^{\mathtt{exponent}}$, `confidence` gives success probability at least $1-n^{-\mathtt{confidence}}$, and every $\epsilon>0$ yields an eventual $O(n^{1/3+\epsilon})$ pass bound.
 
@@ -43,7 +52,7 @@ The proof uses only Lean's standard foundational axioms:
 - [`Classical.choice`](https://lean-lang.org/theorem_proving_in_lean4/Axioms-and-Computation/#choice): the axiom of choice.
 - [`Quot.sound`](https://lean-lang.org/theorem_proving_in_lean4/Axioms-and-Computation/#quotients): quotient soundness.
 
-[`Audit.lean`](StreamingReachability/Audit.lean) checks that all imported project declarations use only these axioms.
+[`Audit.lean`](StreamingSSSP/Audit.lean) checks that all imported project declarations use only these axioms.
 
 Build with Lean and mathlib **v4.35.0**:
 
